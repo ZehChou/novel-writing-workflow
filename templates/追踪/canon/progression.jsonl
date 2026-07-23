@@ -1,0 +1,2 @@
+# Schema: {"id":"PROG-XXXX","chapter":N,"entity":"角色名","system":"体系名","level":"当前等级","value":N}
+# value 为数值排序，用于检测进阶回退（新值必须 ≥ 历史最高值）
