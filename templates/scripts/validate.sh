@@ -50,10 +50,10 @@ validate_chapter() {
 
   # 1. 字数
   local count; count=$(wc -m < "$file" | tr -d ' ')
-  if [ "$count" -ge 4000 ] && [ "$count" -le 5000 ]; then
-    chk_pass "字数: $count (4000-5000)"
+  if [ "$count" -ge 3500 ] && [ "$count" -le 4000 ]; then
+    chk_pass "字数: $count (3500-4000)"
   else
-    chk_fail "字数: $count (期望 4000-5000)"
+    chk_fail "字数: $count (期望 3500-4000)"
   fi
 
   # 2. 禁词 — 年龄/穿越
