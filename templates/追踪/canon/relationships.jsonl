@@ -1,6 +1,7 @@
 # Schema: {"id":"REL-XXXX","chapter":N,"from":"角色A","to":"角色B","status":"关系状态","delta":"变化描述","sentiment":-3..3}
 # sentiment: -3=敌对, -2=厌恶, -1=冷淡, 0=中立, 1=友善, 2=亲近, 3=亲密
 # 每章归档时追加，记录角色间情感状态变化
+# arc: 角色弧线标签（如"露露-信任建立"），同一弧线跨章追踪情感渐进；L2 卷级摘要汇总各 arc 进展
 {"id":"REL-0001","chapter":1,"from":"林一","to":"系统","status":"老夫老妻","delta":"互怼日常，默契十足","sentiment":2}
 {"id":"REL-0002","chapter":2,"from":"林一","to":"露露","status":"陌生人","delta":"林一在石桥镇被露露看到背影，互不相识","sentiment":0}
 {"id":"REL-0003","chapter":2,"from":"露露","to":"林一","status":"好奇","delta":"露露看到走路没声音的背影，感到好奇","sentiment":1}

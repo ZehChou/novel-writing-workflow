@@ -1,0 +1,9 @@
+# Schema: {"id":"MYS-XXXX","mystery":"谜题描述","layer":N,"planned_reveal_chapter":N,"known_by":["角色"],"revealed_chapter":N|null,"disclosed_to":[]}
+# 谜题/世界观秘密的分层释放注册表（限知 POV 核心）
+# layer: 1=表层,2=中层,3=核心，低层先释放
+# planned_reveal_chapter: 计划向读者揭示的章号
+# known_by: 当前已知该谜题的角色；留空=仅主角/作者知晓
+# revealed_chapter: 实际向读者揭示的章号（揭示后回填）
+# disclosed_to: 已被告知的非主角角色列表（随剧情追加）
+# 只追加不修改；revealed_chapter / disclosed_to 可更新
+# 写前 P2 按 known_by 过滤防 POV 泄露；P3.5 检测是否提前于 planned_reveal_chapter 泄露

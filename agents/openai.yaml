@@ -1,0 +1,4 @@
+interface:
+  display_name: "小说写作工作流"
+  short_description: "长篇网文写作全流程 Phase 1-5 单章创作管线与正典追踪"
+  default_prompt: "Use $novel-writing-workflow to 写新章节：先 Phase 2.5 启动写前组装"

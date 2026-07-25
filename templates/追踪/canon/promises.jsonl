@@ -2,6 +2,9 @@
 # 只追加不修改；status 可更新
 # type: cliffhanger=悬念钩, emotional=情感钩, lore=设定钩, setup=铺垫钩
 # scope: intra-volume=本卷回收, cross-volume=跨卷伏笔
+# planned_chapter: 计划回收章号（写前预估，可随剧情调整）
+# resolved_chapter: 实际回收章号（回收时回填，并将 status 改为 fulfilled）
+# 伏笔生命周期：planned_chapter < 当前章且 status:pending -> 逾期；+逾期阈值(默认5)未回收 -> 硬失败
 {"id":"PROMISE-0001","chapter":1,"by":"作者","content":"露露对诅咒之地产生好奇，后续章节露露将会闯入山谷","status":"pending","type":"cliffhanger","scope":"intra-volume"}
 {"id":"PROMISE-0002","chapter":2,"by":"作者","content":"露露接了靠近诅咒之地的月光草采集任务，后续章节露露将因采集任务靠近/进入山谷","status":"pending","type":"cliffhanger","scope":"intra-volume"}
 {"id":"PROMISE-0003","chapter":2,"by":"作者","content":"法师袍年轻男子在冒险者公会门口与露露互动，后续章节可能登场","status":"pending","type":"setup","scope":"cross-volume"}
