@@ -107,9 +107,19 @@ OVERDUE_C=$(field 伏笔逾期阈值); OVERDUE_C=${OVERDUE_C:-5}
 DEDUP_C=$(field 跨章查重回看章数); DEDUP_C=${DEDUP_C:-3}
 L1R=$(field "L1 摘要字数范围"); L1R=${L1R:-300-500}
 
-# Section 5: 关键设定锚点
+# Section 5: 日式轻小说写作风格
 {
-  echo "## 5. 关键设定锚点"
+  echo "## 5. 日式轻小说写作风格"
+  echo ""
+  section_body "^## 5\\. 日式轻小说写作风格"
+  echo ""
+  echo "---"
+  echo ""
+} >> "$OUT"
+
+# Section 6: 关键设定锚点
+{
+  echo "## 6. 关键设定锚点"
   echo ""
   echo "- 书名：$(field 书名)"
   echo "- 作者：$(field 作者)"
@@ -125,9 +135,9 @@ L1R=$(field "L1 摘要字数范围"); L1R=${L1R:-300-500}
   echo ""
 } >> "$OUT"
 
-# Section 6-9: 固定模板
+# Section 7-10: 固定模板
 cat >> "$OUT" << 'FIXED'
-## 6. 校验清单（Phase 3.5 必跑）
+## 7. 校验清单（Phase 3.5 必跑）
 
 ```bash
 bash scripts/validate.sh {NN}
@@ -142,7 +152,7 @@ bash scripts/validate.sh {NN}
 
 ---
 
-## 7. Phase 5 L1 brief 必检查
+## 8. Phase 5 L1 brief 必检查
 
 ```bash
 bash scripts/validate.sh {NN} --brief-only
@@ -150,7 +160,7 @@ bash scripts/validate.sh {NN} --brief-only
 
 ---
 
-## 8. Phase 5 正典账本校验
+## 9. Phase 5 正典账本校验
 
 ```bash
 bash scripts/validate.sh {NN} --canon-only
@@ -158,7 +168,7 @@ bash scripts/validate.sh {NN} --canon-only
 
 ---
 
-## 9. 写作规范（硬约束）
+## 10. 写作规范（硬约束）
 
 - **可出版表达**：正文零违禁词、零低俗梗、零元叙事自指，符合出版审读标准
 - **字数限制**：单章 3500-4000字（Phase 3.5 以 `wc -m` 硬校验，低于3500或高于4000均为不合格）
