@@ -302,43 +302,21 @@ PY
 # ============================================================
 validate_dedup() {
   echo ""; echo "═══════════════════════════════════════════"
-  echo " 跨章查重检测 (对比最近 ${DEDUP_N} 章 L1 brief)"
+  echo " 跨章查重检测 (BM25, 对比最近 ${DEDUP_N} 章 L1 brief)"
   echo "═══════════════════════════════════════════"
   local chap="$1"
   if [ -z "$chap" ] || [ ! -f "$chap" ]; then chk_warn "未找到当前章正文，跳过查重"; return; fi
   local briefs; briefs=$(find_recent_briefs "$DEDUP_N")
   if [ -z "$briefs" ]; then chk_warn "无历史 L1 brief 可对比（前${DEDUP_N}章无 brief），跳过查重"; return; fi
-  local tmp; tmp=$(mktemp)
-  printf '%s\n' "$briefs" > "$tmp"
-  if python3 - "$chap" "$tmp" <<'PY'
-import sys,re
-chap,lf=sys.argv[1],sys.argv[2]
-def grams(s):
-    s=re.sub(r'\s+','',s)
-    return set(s[i:i+3] for i in range(len(s)-2)) if len(s)>2 else set()
-cg=grams(open(chap,encoding='utf-8').read())
-flag=0
-for line in open(lf,encoding='utf-8'):
-    p=line.strip()
-    if not p: continue
-    try: bg=grams(open(p,encoding='utf-8').read())
-    except: continue
-    inter=len(cg & bg)
-    if not bg: continue
-    coef=inter/len(bg)  # overlap coefficient = inter / min(|chap|,|brief|)≈brief
-    import os
-    if coef>0.30:
-        print(f"    ⚠ 疑似重复: {os.path.basename(p)} 重叠系数 {coef:.2f} (>0.30)")
-        flag+=1
-print(f"    对比 brief 数={sum(1 for l in open(lf) if l.strip())} 疑似重复={flag}")
-sys.exit(0)
-PY
-  then
+  python3 "$ROOT/scripts/retrieve.py" dedup --chapter "$chap" --current-nn "$NN" --n "$DEDUP_N" --threshold 0.5
+  local rc=$?
+  if [ "$rc" -eq 0 ]; then
     chk_pass "跨章查重: 完成（疑似重复项见上，≤2 处可接受）"
+  elif [ "$rc" -eq 1 ]; then
+    chk_warn "跨章查重: 存在高度相似历史章（见上），人工复核"
   else
-    chk_fail "跨章查重: 脚本异常"
+    chk_warn "跨章查重: 脚本异常（exit $rc），降级跳过"
   fi
-  rm -f "$tmp"
 }
 
 # ============================================================

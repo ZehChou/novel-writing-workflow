@@ -105,7 +105,7 @@ description: "长篇网文写作全流程 Skill。单章 Phase 1-5 创作管线�
 | P1 | 前3章 L1 brief + 当前卷 L2 + 前章结尾500字 |
 | P2 | 出场角色当前状态 + 已知秘密（facts.jsonl 按 known_by 过滤） |
 | P3 | 活跃钩子（promises.jsonl status:pending）+ 待回收伏笔 |
-| P4 | 关键词反查相关历史 L1 brief（最多3篇） |
+| P4 | BM25 反查相关历史 L1 brief（`retrieve.py recall`，最多3篇） |
 | P5 | 热梗灵感（可选） |
 
 加载后执行**钩子健康度检查**：type/scope 分类、连续3章只落不收检测、**逾期检测**（planned_chapter<当前章且 pending）、上章尾钩承接检查。总字符 ≤15000，超预算必告警。
