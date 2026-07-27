@@ -87,9 +87,9 @@ validate_chapter() {
 
   local count; count=$(wc -m < "$file" | tr -d ' ')
   if [ "$count" -ge 3500 ] && [ "$count" -le 4000 ]; then
-    chk_pass "字数: $count (3500-4000)"
+    chk_pass "字数: $count (3000-3500)"
   else
-    chk_fail "字数: $count (期望 3500-4000)"
+    chk_fail "字数: $count (期望 3000-3500)"
   fi
 
   local b; b=$(grep -nE "18岁|胎穿|穿越者|穿越|重生|前世|现代记忆" "$file" | wc -l | tr -d ' ')
