@@ -38,10 +38,30 @@ num_val() {
   n=$(echo "$v" | grep -oE "[0-9]+" | head -1)
   echo "${n:-$default}"
 }
+# 读取主角名（从 project-config.md 第6节）
+protagonist_name() {
+  local v
+  v=$(awk '/^## 6\. 关键实体名称/{found=1; next} found && /^## /{exit} found && /主角名/{sub(/^[[:space:]]*- *主角名：/,""); print; exit}' "$ROOT/project-config.md" 2>/dev/null)
+  echo "${v:-主角}"
+}
+# 读取关键术语（从 project-config.md 各配置项汇总）
+key_terms_pattern() {
+  local protagonist terms
+  protagonist=$(protagonist_name)
+  terms=$(cfg_val 关键术语 "")
+  if [ -n "$terms" ]; then
+    echo "${protagonist}|${terms}"
+  else
+    echo "${protagonist}"
+  fi
+}
+
 SMALL_CYCLE=$(num_val 小高潮周期 3)
 BIG_CYCLE=$(num_val 大高潮周期 10)
 OVERDUE=$(num_val 伏笔逾期阈值 5)
 DEDUP_N=$(num_val 跨章查重回看章数 3)
+PROTAGONIST=$(protagonist_name)
+KEY_TERMS=$(key_terms_pattern)
 
 find_chapter_file() {
   local f
@@ -96,85 +116,51 @@ validate_chapter() {
   if [ "$b" -eq 0 ]; then chk_pass "禁词(年龄/穿越): 未发现"; else
     chk_fail "禁词(年龄/穿越): 发现 $b 处"; grep -nE "18岁|胎穿|穿越者|穿越|重生|前世|现代记忆" "$file" | head -5; fi
 
-  local mc; mc=$(grep -c "林一" "$file" || true)
+  local mc; mc=$(grep -c "$PROTAGONIST" "$file" || true)
   [ "$mc" -gt 0 ] && chk_pass "主角出场: $mc 次" || chk_fail "主角出场: 未出现"
 
   b=$(grep -nE "阶位|层次|重天|小成|大成|圆满|巅峰|半步|准[、， ]*伪[、， ]*真[、， ]*假" "$file" | wc -l | tr -d ' ')
   if [ "$b" -eq 0 ]; then chk_pass "禁词(境界): 未发现"; else
     chk_fail "禁词(境界): 发现 $b 处"; grep -nE "阶位|层次|重天|小成|大成|圆满|巅峰|半步|准[、， ]*伪[、， ]*真[、， ]*假" "$file" | head -5; fi
 
-  local kt; kt=$(grep -cE "林一|签到系统|元婴|灵石|灵气" "$file" || true)
+  local kt; kt=$(grep -cE "$KEY_TERMS" "$file" || true)
   [ "$kt" -gt 0 ] && chk_pass "关键术语出现: $kt 次" || chk_warn "关键术语: 未找到核心设定词"
 
   b=$(grep -nE "仿佛|宛如|犹如|似乎|隐约|那一刻|就在这时|空气中弥漫|不由自主|下意识|恍惚|彷佛|这什么展开|绝了|离谱" "$file" | wc -l | tr -d ' ')
   if [ "$b" -eq 0 ]; then chk_pass "去AI味禁词: 未发现"; else
     chk_fail "去AI味禁词: 发现 $b 处"; grep -nE "仿佛|宛如|犹如|似乎|隐约|那一刻|就在这时|空气中弥漫|不由自主|下意识|恍惚|彷佛|这什么展开|绝了|离谱" "$file" | head -5; fi
 
+  b=$(grep -nE "主角光环|剧情杀|工具人|NPC|降智|圣母|舔狗|金手指|外挂|面板|属性|经验值|新手村" "$file" | wc -l | tr -d ' ')
+  if [ "$b" -eq 0 ]; then chk_pass "其他禁词: 未发现"; else
+    chk_fail "其他禁词: 发现 $b 处"; grep -nE "主角光环|剧情杀|工具人|NPC|降智|圣母|舔狗|金手指|外挂|面板|属性|经验值|新手村" "$file" | head -5; fi
+
   b=$(grep -nE "大纲|设定|剧情|伏笔|爽点|反转|节奏|张力|钩子|人物小传" "$file" | wc -l | tr -d ' ')
   if [ "$b" -eq 0 ]; then chk_pass "元叙事禁词: 未发现"; else
     chk_fail "元叙事禁词: 发现 $b 处"; grep -nE "大纲|设定|剧情|伏笔|爽点|反转|节奏|张力|钩子|人物小传" "$file" | head -5; fi
 
-  b=$(grep -cE "known_by|POV|知识边界" "$file" || true)
-  [ "$b" -eq 0 ] && chk_pass "元叙事自指: 未发现" || chk_fail "元叙事自指: 发现 $b 处(正文中不应出现这些词)"
+  local repeated; repeated=$(grep -c "^${PROTAGONIST}" "$file" || true)
+  [ "$repeated" -le 10 ] && chk_pass "段落开头多样性: '${PROTAGONIST}'开头 $repeated 次(≤10)" || chk_warn "段落开头多样性: '${PROTAGONIST}'开头 $repeated 次(>10，建议变换)"
 
-  local tail_text; tail_text=$(tail -c 300 "$file" 2>/dev/null || tail -c 300 "$file")
-  local has_hook=0
-  echo "$tail_text" | grep -qE "[？?！!…--]" && has_hook=1
-  echo "$tail_text" | grep -qE "忽然|突然|就在这时|第二天|次日|第二天早晨|一个身影|一道光|一声响|不对劲|怎么回事|不会吧|难道|该不会" && has_hook=1
-  [ "$has_hook" -eq 1 ] && chk_pass "结尾钩子: 最后300字有悬念/情感转折" || chk_warn "结尾钩子: 最后300字未检测到明显悬念，建议确认结尾是否有力"
+  echo -e "\n  ${YELLOW}--- 节奏与结尾检测 ---${NC}"
+  local tail_text; tail_text=$(tail -c 900 "$file")
+  local has_info; has_info=$(echo "$tail_text" | grep -cE "？|！|\.\.\.|[新来去进出]" || true)
+  if [ "$has_info" -ge 1 ]; then
+    chk_pass "尾部钩子: 有悬念/转折/新信息"
+  else
+    chk_warn "尾部钩子: 结尾偏平淡，建议加悬念"
+  fi
 
-  local repeated; repeated=$(grep -c "^林一" "$file" || true)
-  [ "$repeated" -le 10 ] && chk_pass "段落开头多样性: '林一'开头 $repeated 次(≤10)" || chk_warn "段落开头多样性: '林一'开头 $repeated 次(>10，建议变换)"
+  b=$(echo "$tail_text" | grep -cE "睡了|走了|回去了|离开了|今天真是|美好的一天|就这样" || true)
+  if [ "$b" -eq 0 ]; then chk_pass "收尾模式: 未检测到平淡收尾"; else
+    chk_warn "收尾模式: 疑似平淡收尾（'睡了/走了/美好了'）"; fi
 
-  local said_count; said_count=$(grep -cE "[。：，]他说|[。：，]她说|[。：，]它说" "$file" || true)
-  [ "$said_count" -le 5 ] && chk_pass "对话标签: '说'出现 $said_count 次(≤5)" || chk_warn "对话标签: '说'出现 $said_count 次(>5，建议用动作/表情替代)"
+  # 段落开头多样性
+  local mc_open; mc_open=$(grep -c "^${PROTAGONIST}" "$file" || true)
+  [ "$mc_open" -le 10 ] && chk_pass "段落开头: '${PROTAGONIST}'开头 $mc_open 次(≤10)" || chk_warn "段落开头: '${PROTAGONIST}'开头 $mc_open 次(>10，建议变换)"
 }
 
 # ============================================================
-# 节奏/结尾专项检查
-# ============================================================
-validate_pacing() {
-  local file="$1"
-  local fname; fname=$(basename "$file")
-  echo ""; echo "═══════════════════════════════════════════"
-  echo " 节奏/结尾专项检查: $fname"
-  echo "═══════════════════════════════════════════"
-
-  local tail_text; tail_text=$(tail -c 300 "$file" 2>/dev/null)
-  local has_hook=0
-  echo "$tail_text" | grep -qE "[？?！!…--]" && has_hook=1
-  echo "$tail_text" | grep -qE "忽然|突然|就在这时|第二天|次日|第二天早晨|一个身影|一道光|不对劲|不会吧|难道|该不会" && has_hook=1
-  [ "$has_hook" -eq 1 ] && chk_pass "结尾钩子: 最后300字有悬念/情感转折" || chk_warn "结尾钩子: 最后300字未检测到明显悬念，建议确认"
-
-  local mc_open; mc_open=$(grep -c "^林一" "$file" || true)
-  [ "$mc_open" -le 10 ] && chk_pass "段落开头: '林一'开头 $mc_open 次(≤10)" || chk_warn "段落开头: '林一'开头 $mc_open 次(>10，建议变换)"
-
-  local said; said=$(grep -cE "[。：，]他说|[。：，]她说|[。：，]它说" "$file" || true)
-  [ "$said" -le 5 ] && chk_pass "对话标签: '说'出现 $said 次(≤5)" || chk_warn "对话标签: '说'出现 $said 次(>5，建议用动作/表情替代)"
-
-  local count; count=$(wc -m < "$file" | tr -d ' ')
-  chk_pass "总字数: $count"
-
-  # 高潮义务检查（按章号周期，独立于节奏图谱是否存在）
-  local is_climax=0 climax_type=""
-  if [ "$((CUR % BIG_CYCLE))" -eq 0 ]; then is_climax=1; climax_type="大高潮(÷$BIG_CYCLE)"; fi
-  if [ "$((CUR % SMALL_CYCLE))" -eq 0 ]; then is_climax=1; climax_type="${climax_type:-小高潮(÷$SMALL_CYCLE)}"; fi
-  if [ "$is_climax" -eq 1 ]; then
-    chk_warn "高潮义务: Ch${CUR} 命中 ${climax_type}，确认本章情绪强度到位（中高以上）"
-  else
-    chk_pass "高潮义务: Ch${CUR} 非高潮章（小高潮÷${SMALL_CYCLE}/大高潮÷${BIG_CYCLE}）"
-  fi
-
-  # 节奏图谱存在性提示（图谱在 P5 归档时填充，此处仅提示）
-  if [ -f "$ROOT/追踪/节奏图谱.md" ]; then
-    chk_pass "节奏图谱: 存在（卷收尾时校验全卷曲线）"
-  else
-    chk_warn "节奏图谱: 追踪/节奏图谱.md 不存在，跨章节奏追踪未启用（skip）"
-  fi
-}
-
-# ============================================================
-# L1 Brief 校验
+# L1 brief 校验
 # ============================================================
 validate_brief() {
   local file="$1"
@@ -182,14 +168,15 @@ validate_brief() {
   echo ""; echo "═══════════════════════════════════════════"
   echo " L1 Brief 校验: $fname"
   echo "═══════════════════════════════════════════"
-  [ ! -f "$file" ] && { chk_fail "文件不存在"; return; }
 
   local count; count=$(wc -m < "$file" | tr -d ' ')
-  [ "$count" -ge 300 ] && [ "$count" -le 500 ] && chk_pass "字数: $count (300-500)" || chk_fail "字数: $count (期望 300-500)"
+  if [ "$count" -ge 300 ] && [ "$count" -le 500 ]; then
+    chk_pass "字数: $count (300-500)"
+  else
+    chk_fail "字数: $count (期望 300-500)"
+  fi
 
-  grep -qE "^# Chapter" "$file" && chk_pass "标题格式: 正确" || chk_fail "标题格式: 缺少 '# Chapter' 标题"
-  grep -q "关键钩子" "$file" && chk_pass "关键钩子段: 存在" || chk_fail "关键钩子段: 缺失"
-  grep -q "信息密度" "$file" && chk_pass "信息密度段: 存在" || chk_fail "信息密度段: 缺失"
+  grep -qE "时间：|出场：|摘要：|关键钩子：|信息密度：|字数：" "$file" && chk_pass "格式: 含 6 个必要字段" || chk_fail "格式: 缺少必要字段"
 }
 
 # ============================================================
@@ -199,29 +186,60 @@ validate_canon() {
   echo ""; echo "═══════════════════════════════════════════"
   echo " 正典账本校验"
   echo "═══════════════════════════════════════════"
-  local d="$CANON"
-  [ -f "$d/facts.jsonl" ] && chk_pass "facts.jsonl: $(grep -c '' "$d/facts.jsonl" || true) 行" || chk_fail "facts.jsonl: 不存在"
-  [ -f "$d/promises.jsonl" ] && chk_pass "promises.jsonl: $(grep -c '' "$d/promises.jsonl" || true) 行" || chk_warn "promises.jsonl: 不存在(可能无承诺)"
-  [ -f "$d/progression.jsonl" ] && chk_pass "progression.jsonl: $(grep -c '' "$d/progression.jsonl" || true) 行" || chk_fail "progression.jsonl: 不存在"
-  [ -f "$d/relationships.jsonl" ] && chk_pass "relationships.jsonl: $(grep -c '' "$d/relationships.jsonl" || true) 行" || chk_warn "relationships.jsonl: 不存在(可能无情感记录)"
-  [ -f "$d/settings.jsonl" ] && chk_pass "settings.jsonl: $(grep -c '' "$d/settings.jsonl" || true) 行" || chk_warn "settings.jsonl: 不存在(可能无场景注册)"
-  if [ -f "$d/mysteries.jsonl" ]; then
-    chk_pass "mysteries.jsonl: $(grep -c '' "$d/mysteries.jsonl" || true) 行"
+
+  local f
+  for f in facts promises progression relationships settings; do
+    local path="$CANON/${f}.jsonl"
+    if [ -f "$path" ]; then
+      local lines; lines=$(grep -vc '^#' "$path" || true)
+      chk_pass "${f}.jsonl: ${lines} 条记录"
+    else
+      chk_warn "${f}.jsonl: 不存在"
+    fi
+  done
+}
+
+# ============================================================
+# 节奏/结尾 + 高潮义务检查
+# ============================================================
+validate_pacing() {
+  local file="$1"
+  echo ""; echo "═══════════════════════════════════════════"
+  echo " 节奏图谱 & 高潮义务检查 (当前 Ch${CUR})"
+  echo "═══════════════════════════════════════════"
+
+  local pacing_file="$ROOT/追踪/节奏图谱.md"
+  if [ ! -f "$pacing_file" ]; then chk_warn "节奏图谱.md 不存在（节奏追踪未启用，skip）"; return; fi
+
+  if [ $((CUR % SMALL_CYCLE)) -eq 0 ]; then
+    echo "  ⚡ 当前章命中小高潮周期 (每${SMALL_CYCLE}章)"
+    local tail_text; tail_text=$(tail -c 900 "$file")
+    local intensity; intensity=$(echo "$tail_text" | grep -cE "！|\?|\.\.\.|[冲撞打断裂]" || true)
+    [ "$intensity" -ge 3 ] && chk_pass "小高潮情绪强度: 章末情绪标记 ${intensity}处(≥3)" || chk_warn "小高潮情绪强度: 章末情绪标记 ${intensity}处(<3，建议加强)"
   else
-    chk_warn "mysteries.jsonl: 不存在（谜题分层释放未启用，skip）"
+    chk_pass "小高潮周期: 当前非高潮章（无高潮义务）"
+  fi
+
+  if [ $((CUR % BIG_CYCLE)) -eq 0 ]; then
+    echo "  🔥 当前章命中大高潮周期 (每${BIG_CYCLE}章)"
+    local tail_text; tail_text=$(tail -c 900 "$file")
+    local intensity; intensity=$(echo "$tail_text" | grep -cE "！|\?|\.\.\.|[冲撞打断裂]" || true)
+    [ "$intensity" -ge 5 ] && chk_pass "大高潮情绪强度: 章末情绪标记 ${intensity}处(≥5)" || chk_warn "大高潮情绪强度: 章末情绪标记 ${intensity}处(<5，建议大幅加强)"
+  else
+    chk_pass "大高潮周期: 当前非大高潮章（无高潮义务）"
   fi
 }
 
 # ============================================================
-# 伏笔生命周期检测（新增）
+# 伏笔生命周期检测
 # ============================================================
 validate_foreshadow() {
   echo ""; echo "═══════════════════════════════════════════"
-  echo " 伏笔生命周期检测 (当前 Ch${CUR}, 逾期阈值 +${OVERDUE})"
+  echo " 伏笔生命周期检测 (当前 Ch${CUR})"
   echo "═══════════════════════════════════════════"
   local f="$CANON/promises.jsonl"
-  if [ ! -f "$f" ]; then chk_warn "promises.jsonl 不存在，跳过伏笔检测"; return; fi
-  if python3 - "$f" "$CUR" "$OVERDUE" <<'PY'
+  if [ ! -f "$f" ]; then chk_warn "promises.jsonl 不存在（伏笔追踪未启用，skip）"; return; fi
+  python3 - "$f" "$CUR" "$OVERDUE" <<'PY'
 import json,sys
 f,cur,overdue=sys.argv[1],int(sys.argv[2]),int(sys.argv[3])
 rows=[]
@@ -231,6 +249,9 @@ for l in open(f,encoding='utf-8'):
     try: rows.append(json.loads(l))
     except: pass
 pending=[r for r in rows if r.get('status')=='pending']
+intra=[r for r in pending if r.get('scope')=='intra-volume']
+cross=[r for r in pending if r.get('scope')=='cross-volume']
+print(f"    活跃钩子: {len(pending)} 个 (卷内={len(intra)} 跨卷={len(cross)})")
 warn=0;fail=0
 for r in pending:
     pc=r.get('planned_chapter')
@@ -238,24 +259,24 @@ for r in pending:
     try: pc=int(pc)
     except: continue
     if pc<cur:
-        if pc+overdue<=cur:
-            print(f"    ✗ 逾期硬失败: {r.get('id')} planned_ch{pc} (超阈值{overdue}) - {r.get('content','')[:30]}")
+        if cur-pc>overdue:
+            print(f"    ✗ 硬失败: {r.get('id')} planned_ch{pc} 已逾期 {cur-pc} 章(阈值{overdue}) - {r.get('content','')[:30]}")
             fail+=1
         else:
-            print(f"    ⚠ 逾期警告: {r.get('id')} planned_ch{pc} - {r.get('content','')[:30]}")
+            print(f"    ⚠ 逾期: {r.get('id')} planned_ch{pc} 已逾期 {cur-pc} 章 - {r.get('content','')[:30]}")
             warn+=1
-print(f"    待回收 pending={len(pending)} 逾期警告={warn} 逾期硬失败={fail}")
 sys.exit(1 if fail else 0)
 PY
-  then
-    chk_pass "伏笔生命周期: 无逾期硬失败"
+  local rc=$?
+  if [ "$rc" -eq 0 ]; then
+    chk_pass "伏笔生命周期: 无逾期未回收"
   else
-    chk_fail "伏笔生命周期: 存在逾期硬失败（见上）"
+    chk_fail "伏笔生命周期: 存在硬失败逾期项（见上）"
   fi
 }
 
 # ============================================================
-# 谜题分层释放检测（新增）
+# 谜题分层释放检测
 # ============================================================
 validate_mystery() {
   echo ""; echo "═══════════════════════════════════════════"

@@ -1,6 +1,7 @@
 # Schema: {"id":"SET-XXXX","chapter":N,"location":"地点名","fact":"固定描述","immutable":true|false}
 # 用途：注册场景/物品的固定描述，防止描述漂移
-# immutable=true：不可变描述（如木屋朝向、灵田面积），一旦登记不得在后续章节中矛盾
+# immutable=true：不可变描述（如建筑朝向、面积），一旦登记不得在后续章节中矛盾
 # immutable=false：可变描述（如天气、季节、临时物品），可被后续章节覆盖
 # 写前 P2 加载时按 location 过滤出场场景；P3.5 矛盾检测时逐条比对
-{"id":"SET-0001","chapter":1,"location":"山谷木屋","fact":"木屋朝南，两扇窗，门前三级石阶，屋檐下挂着一串风干的灵草","immutable":true}
+# 示例条目（使用时替换为实际内容，或删除示例从头开始）：
+# {"id":"SET-0001","chapter":1,"location":"{关键地点名}","fact":"{固定描述，如：建筑朝南，两扇窗，门前三级石阶}","immutable":true}
