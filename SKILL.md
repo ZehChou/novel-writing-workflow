@@ -11,9 +11,10 @@ description: "长篇网文写作全流程 Skill。单章 Phase 1-5 创作管线�
 
 1. 将 `templates/` 目录下全部文件复制到项目根目录
 2. 逐项引导用户填写 `project-config.md`（禁词、境界体系、关键实体名、节奏周期等）
-3. 从 `project-config.md` 生成 `AGENTS.md`：`bash scripts/generate-agents.sh`
-4. 生成 `工作流.md` 速查：由 AI 据本文件"执行口令"与"阶段表"摘要生成（供人快速查阅，非执行依据）
-5. 确认目录结构完整后，项目即就绪，可进入 Phase 1
+3. **选择类型化参数**：按题材选 `references/genre-profiles.md` 的 profile（男频爽文/轻小说日常/悬疑无限流/女频言情），覆盖 `project-config.md` 默认节奏参数（爽点频率、对白占比、日常比等）
+4. 从 `project-config.md` 生成 `AGENTS.md`：`bash scripts/generate-agents.sh`
+5. 生成 `工作流.md` 速查：由 AI 据本文件"执行口令"与"阶段表"摘要生成（供人快速查阅，非执行依据）
+6. 确认目录结构完整后，项目即就绪，可进入 Phase 1
 
 ### 标准目录结构
 
@@ -34,15 +35,20 @@ description: "长篇网文写作全流程 Skill。单章 Phase 1-5 创作管线�
 │   ├── canon/
 │   │   ├── facts.jsonl          # 原子事实（known_by POV 过滤）
 │   │   ├── promises.jsonl       # 钩子/承诺（含伏笔生命周期）
-│   │   ├── progression.jsonl    # 能力进阶轨迹
+│   │   ├── payoffs.jsonl        # 爽点/期待感账本（★）
+│   │   ├── panels.jsonl         # 金手指/系统面板注册表（★）
+│   │   ├── roles.jsonl          # 配角/反派池（★）
+│   │   ├── progression.jsonl    # 能力进阶轨迹（含战力通胀检测）
 │   │   ├── relationships.jsonl  # 情感状态（含角色弧线 arc）
 │   │   ├── settings.jsonl       # 场景注册表（immutable 防漂移）
 │   │   ├── mysteries.jsonl      # 谜题分层释放注册表
+│   │   ├── archive/             # 卷归档压缩区（L4，archive.sh）
 │   │   └── canon_change_log.md  # canon_patch 变更记录
-│   ├── 节奏图谱.md              # 跨章节奏追踪（小/大高潮周期）
+│   ├── 节奏图谱.md              # 跨章节奏追踪（小/大高潮周期 + 爽点兑现 + 追读）
+│   ├── 复盘.md                  # 读者反馈复盘（P4.5）
 │   ├── snapshots/
 │   └── 参考/
-└── scripts/                     # validate snapshot gen_docx generate-agents
+└── scripts/                     # validate snapshot archive gen_docx generate-agents
 ```
 
 ---
@@ -66,23 +72,27 @@ description: "长篇网文写作全流程 Skill。单章 Phase 1-5 创作管线�
 | P2.6 | 大纲审批（硬） | P2.55 全绿 | 输出大纲 -> 用户审阅 -> "可写" | 用户显式批准"可写" |
 | P2.7 | 场景编剧卡 | P2.6 批准 | 拆 3-5 张场景卡（7项/张） | 每卡完整、意图明确 |
 | P2.75 | 关键对白预演（条件必做） | P2.7 完成 | 关键说话人目标/底线 + 80–150字纯对白试音 | 有关键对白时完成；否则标“不适用” |
-| P3 | 正文写作 | P2.75 完成/不适用 | 按场景卡写入 `正文/{NN}_章名.md` | 初稿字数达标 |
+| P3 | 正文写作 | P2.75 完成/不适用 | 按场景卡写入 `正文/{NN}_章名.md` | 初稿字数 + 有效推进项达标（≥配置值，见 style-and-pacing §2b） |
 | P3.2 | 自编辑 | P3 完成 | 通读自查 + 段落开头 + 对话标签 + 动作合理性 | 基础编辑完成 |
 | P3.25 | 对白二稿（条件必做） | P3.2 完成 | 抽离关键对白，四项评分 + 朗读测试 | 总分 ≥6/8；否则重写骨架 |
 | P3.5 | 写后双重核验（硬） | P3.25 完成/不适用 | A 机械硬校验 + B 文学审稿 | 两份报告均明确通过 |
 | P3.6 | 查重检查（硬） | P3.5 通过 | 跨章查重（最近N章+同卷同弧） | 重复项 ≤2 |
 | P4 | 用户审阅 | P3.6 全绿 | 用户读正文，给通过/修改意见 | 用户显式批准 |
+| P4.5 | 读者反馈复盘（按需/每卷） | 用户提供追读/章评/订阅数据 | 录数据到 `追踪/复盘.md`，标记 reader_hit、定位流失点、产出调整建议（见 references/reader-feedback.md） | 调整建议展示给用户确认 | 
 | P5 | 归档入库（十步） | P4 批准 | 见第三节 P5 | 十步全执行、文件落盘 |
-| P5+ | 卷末章特殊处理 | 卷末章 P5 完成 | 卷末收束7步 + 新卷开启6步（见 references/volume-transition.md） | 卷切换就绪 |
+| P5+ | 卷末章特殊处理 | 卷末章 P5 完成 | 卷末收束10步（含爽点/面板/配角池审计 + 正典归档压缩）+ 新卷开启6步（见 references/volume-transition.md） | 卷切换就绪 |
 
 ### references 导航
 
 | 主题 | 参考文件 | 何时读 |
 |------|----------|--------|
-| 正典六维 schema + canon_patch + 伏笔/谜题 | `references/canon-tracking.md` | P2/P3.5/P5 涉及正典时 |
-| P2.5 预算 + L1/L2/L3 + 衰减 + 幻觉信号 | `references/context-budget.md` | P2.5 组装时 |
-| 文风 + 节奏度量 + 跨章节奏图谱 | `references/style-and-pacing.md` | P3/P3.5 文风节奏校验时 |
+| 正典（六维+爽点账本+面板+配角池）schema + 归档 + canon_patch | `references/canon-tracking.md` | P2/P3.5/P5/卷末 涉及正典时 |
+| P2.5 预算 + L1/L2/L3/L4 + 衰减 + 幻觉信号 | `references/context-budget.md` | P2.5 组装时 |
+| 文风 + 节奏度量 + 单章推进 + 黄金三章 + 爽感节奏 | `references/style-and-pacing.md` | P3/P3.5 文风节奏校验时 |
 | 对白二稿 + 幽默校准 + 样本库 | `references/dialogue-revision.md` | P2.7/P2.75/P3.25/P3.5 有关键对白时 |
+| 文学失败模式（用户不满诊断 + 网文黑名单） | `references/literary-failure-modes.md` | P3.5 文学审稿 / P4 用户不满时 |
+| 类型化参数（男频/轻小说/悬疑/女频） | `references/genre-profiles.md` | 开书初始化 / 换题材时 |
+| 读者反馈复盘（追读/章评 → 调整） | `references/reader-feedback.md` | P4.5 复盘时 |
 | 卷切换（收卷/开卷）流程 | `references/volume-transition.md` | 卷末章/新卷首章 |
 | 角色切换宣言（防自我审查） | `references/role-switching.md` | 各阶段切换时 |
 
@@ -98,7 +108,7 @@ description: "长篇网文写作全流程 Skill。单章 Phase 1-5 创作管线�
 
 整理本章出场人名、境界、时间线、前文钩子；从 `facts.jsonl` 按 `known_by` 过滤出场角色已知秘密。
 
-### P2.5 写前组装（硬门槛）
+### 🔴 P2.5 写前组装（硬门槛 · 加载不全会卡住后续）
 
 分层加载（详细预算与截断策略见 `references/context-budget.md`）：
 
@@ -106,28 +116,29 @@ description: "长篇网文写作全流程 Skill。单章 Phase 1-5 创作管线�
 |--------|------|
 | P0 | 本章大纲、角色档案、文风样本、档案事件、创作脉络 |
 | P1 | 前3章 L1 brief + 当前卷 L2 + 前章结尾500字 |
-| P2 | 出场角色当前状态 + 已知秘密（facts.jsonl 按 known_by 过滤） |
-| P3 | 活跃钩子（promises.jsonl status:pending）+ 待回收伏笔 |
+| P2 | 出场角色当前状态 + 已知秘密（facts.jsonl 按 known_by 过滤）+ 配角池可用性（roles.jsonl） |
+| P3 | 活跃钩子（promises.jsonl status:pending）+ 待兑现爽点（payoffs.jsonl pending）+ 出场角色面板当前值（panels.jsonl immutable） |
 | P4 | BM25 反查相关历史 L1 brief（`retrieve.py recall`，最多3篇） |
 | P5 | 本章出场角色的作者批准对白样本（2–3组，按需加载；不加载外部热梗） |
 
-加载后执行**钩子健康度检查**：type/scope 分类、连续3章只落不收检测、**逾期检测**（planned_chapter<当前章且 pending）、上章尾钩承接检查。总字符 ≤15000，超预算必告警。
+加载后执行**钩子/期待感健康度检查**：type/scope 分类、连续3章只落不收检测、**逾期检测**（promises planned_chapter 与 payoffs 设置章双轨）、上章尾钩承接检查、**爽点只设不收检测**（近3章净新增 pending ≥3 → 本章优先回收）。总字符 ≤15000，超预算必告警。
 
-### P2.55 记忆预演（硬门槛）
+### 🔴 P2.55 记忆预演（硬门槛 · 五项全 ✓）
 
 口令 `"Phase 2.55 预演"`。逐项输出（`---` 分隔）：
 
 1. **出场角色当前状态**：逐角色列位置/情绪/最近出场/关系（参照 relationships.jsonl + arc）
 2. **当前场景状态**：从 settings.jsonl 读 immutable，确认位置/时间/天气与上章连接无断层
 3. **活跃钩子清单**：未闭合钩子 + promises.jsonl 临近到期承诺（标注 待回收/本章推进/本章回收）
-4. **本章情绪基调**：开场/中段转折/结尾（各1-2词）+ 与前章衔接是否平顺
-5. **正典事实比对**：从 facts.jsonl 过滤出场角色条目逐条确认（一致/本章更新/需注意）
+4. **爽点/期待感状态**：本章应兑现的 payoffs（pending 且临近）、近3章只设不收欠账、本章是否设置新期待感
+5. **本章情绪基调**：开场/中段转折/结尾（各1-2词）+ 与前章衔接是否平顺
+6. **正典事实比对**：从 facts.jsonl 过滤出场角色条目逐条确认（一致/本章更新/需注意）
 
-出口：五项全 ✓，任一不通过回 P2 修正。
+出口：六项全 ✓，任一不通过回 P2 修正。
 
-### P2.6 大纲审批（硬门槛）
+### 🔴 P2.6 大纲审批（硬门槛 · 🛑 STOP 等用户"可写"）
 
-口令 `"Phase 2.6 审批"`。输出本章大纲 -> 等待用户审阅 -> 用户显式回复"可写"方可进 P3。
+口令 `"Phase 2.6 审批"`。输出本章大纲（含本章爽点/期待感规划：设置哪个、兑现哪个）-> 等待用户审阅 -> 用户显式回复"可写"方可进 P3。类型化题材（轻小说/悬疑等）对照 `references/genre-profiles.md` 检查本章节奏参数。
 
 ### P2.7 场景编剧卡
 
@@ -161,7 +172,7 @@ description: "长篇网文写作全流程 Skill。单章 Phase 1-5 创作管线�
 
 ### P3 正文写作
 
-按场景卡顺序写入 `正文/{NN}_章名.md`，目标以项目配置为准。先让人物完成当下互动，再安排信息、反差和节奏；不要为展示技巧而改变人物的正常反应。
+按场景卡顺序写入 `正文/{NN}_章名.md`，目标以项目配置为准。先让人物完成当下互动，再安排信息、反差和节奏；不要为展示技巧而改变人物的正常反应。**出口三要素**：字数达标 + 有效推进项 ≥ 配置值（信息/关系/战力/爽点/目标任一）+ 章末钩子承接并推进上一章钩子（详见 `references/style-and-pacing.md` §2b）。
 
 #### 对话写作微指令
 
@@ -200,7 +211,7 @@ P3.2 只做基础编辑；关键对白的整体重写留给 P3.25，不以“只
 
 输出简短“对白审稿报告”：重写了哪些场景、删去了哪些解释性台词、仍需用户重点审阅的 1–2 处。
 
-### P3.5 写后硬校验（硬门槛）
+### 🔴 P3.5 写后硬校验（硬门槛 · 机械+文学双报告）
 
 口令 `"Phase 3.5 核验"`。机械校验与文学审稿分开报告。
 
@@ -214,17 +225,26 @@ P3.2 只做基础编辑；关键对白的整体重写留给 P3.25，不以“只
 6. Anti-AI 文风禁词
 7. POV 知识边界（known_by 过滤，防角色使用未知信息）
 8. 正典冲突（facts/progression/promises 逐条比对，详见 `references/canon-tracking.md`）
+9. 爽点账本（--payoff：期待感-兑现配对、逾期、只设不收）
+10. 黄金三章（--opening：仅 Ch1-3 强制）
+11. 战力通胀（--power：回退/升级过快/越级无代价）
+12. 面板一致性（--panel：金手指/系统面板 immutable 数值）
+13. 配角池（--cast：闲置/反派缺动机）
 
-**B. 文学审稿报告**：不得以“全绿”代替判断，逐项写“通过 / 需重写”及具体位置：
+**B. 文学审稿报告**：不得以”全绿”代替判断，逐项写”通过 / 需重写”及具体位置：
 
 - 关键对白是否完成 P3.25，且总分达到 6/8；
 - 每位关键角色能否凭处理关系和压力的方式辨认，而非只看口癖；
 - 是否存在解释笑点、解释人物高明或替读者总结的台词；
-- 收尾模式、谜题提前泄露、读者-主角信息同步与关系递进是否成立。
+- 收尾模式、谜题提前泄露、读者-主角信息同步与关系递进是否成立；
+- **有效推进项是否 ≥ 配置值**（为 0 直接判”需重写”，见 style-and-pacing §2b）；
+- **本章期待感是否有推进或兑现**（对照 payoffs.jsonl）；
+- **出场反派/配角行为与动机、智商档位是否一致**（无降智，见 literary-failure-modes.md #3）；
+- **开篇章（Ch1-3）**是否满足黄金三章清单（金手指悬念/人设三要素/小爽点闭环/零设定倾倒）。
 
-机械项全绿、文学项没有“需重写”才交用户。正文与 `AGENTS.md` 冲突以 `AGENTS.md` 为准。
+机械项全绿、文学项没有”需重写”才交用户。正文与 `AGENTS.md` 冲突以 `AGENTS.md` 为准。
 
-### P3.6 查重检查（硬门槛）
+### 🔴 P3.6 查重检查（硬门槛 · 重复项 ≤2）
 
 口令 `"Phase 3.6 查重"`。运行 `bash scripts/validate.sh {NN} --dedup`。对比范围：**最近 N 章 L1 brief + 同卷同弧章节**（N 默认3，可配）。检查四项：场景重复/对话重复/意象重复/情节重复。出口：重复项 ≤2 处且非关键情节。
 
@@ -232,9 +252,20 @@ P3.2 只做基础编辑；关键对白的整体重写留给 P3.25，不以“只
 
 除正文外，一并交付 P3.25 的对白审稿报告。用户优先审阅关键对白、人物边界和保留的幽默；用户修改正文后，P5 前必须重新读取最新版本，不能以旧版审稿报告代替复核。
 
-### P5 归档入库（十步）
+### P4.5 读者反馈复盘（按需/每卷）
 
-口令 `"Phase 5 归档"`。**必须经用户口头确认"可归档"后执行**。归档前**再读一遍最新正文**（P4 用户可能手改）。
+口令 `"Phase 4.5 复盘"`。当用户提供追读率、章评、订阅等数据，或主动要求复盘时执行（详细流程见 `references/reader-feedback.md`）：
+
+1. 录入数据到 `追踪/复盘.md`（追读曲线/章评高频词/订阅变化）
+2. 逐章标记：追读下降 → 查失败模式表；买账爽点 → payoffs.jsonl 回填 `reader_hit`；被点名角色 → 记录待调人设
+3. 产出调整建议（节奏/细纲/钩子回收/人设），展示给用户确认
+4. 用户确认后改 `大纲`/`节奏图谱`/`细纲`/人设标签；已归档正文不动
+
+**🔴 复盘原则**：只依据读者数据与用户反馈（复盘者角色宣言见 `references/role-switching.md`），不依据"我觉得这样写更好"；至少 2 个独立信号才触发调整，防过度反应。
+
+### 🔴 P5 归档入库（十步）
+
+口令 `"Phase 5 归档"`。**必须经用户口头确认"可归档"后执行**（快速模式启用且 `自动跳过确认=是` 时，改为 AI 汇报 + 用户可事后退回）。归档前**再读一遍最新正文**（P4 用户可能手改）。
 
 1. `cp 正文/{NN}_章名.md 正文/{NN}_章名.归档.md`（只读锁定）
 2. 更新 `知识库/角色档案.md`（人名/境界/关系/时间线）
@@ -244,39 +275,43 @@ P3.2 只做基础编辑；关键对白的整体重写留给 P3.25，不以“只
 6. 更新 `知识库/时间线.md`（关键时间点/人物动态/事件顺序）
 7. 生成 L1 brief -> `正文/摘要/{NN}_章名.brief.md`（300-500字，冻结不修改）
 8. 更新 L2 卷级摘要 -> `正文/摘要/卷{NN}.brief.md`（卷收尾时更新，非收尾跳过）
-9. 更新正典账本 -> 追加 `facts`/`promises`（回填 resolved_chapter）/`progression`/`relationships`（回填 arc）/`mysteries`（回填 revealed_chapter、disclosed_to）
-10. 节奏图谱追加本章行 + 快照触发检查：满足条件执行 `bash scripts/snapshot.sh {NN}`
+9. 更新正典账本 -> 追加 `facts`/`promises`（回填 resolved_chapter）/`payoffs`（回填 paid_chapter、reader_hit）/`panels`（面板当前值）/`roles`（last_appearance、appearances、motive）/`progression`/`relationships`（回填 arc）/`mysteries`（回填 revealed_chapter、disclosed_to）
+10. 节奏图谱追加本章行（含爽点兑现列）+ 快照触发检查：满足条件执行 `bash scripts/snapshot.sh {NN}`
 
-**卷末章**：P5 完成后执行卷末收束 + 新卷开启，详见 `references/volume-transition.md`。
+**卷末章**：P5 完成后执行卷末收束（10步，含爽点/面板/配角池审计 + 正典归档压缩）+ 新卷开启，详见 `references/volume-transition.md`。
 
 ---
 
 ## 四、正典追踪系统
 
-六维追加式 JSONL，保证长篇一致性。详细 schema、伏笔生命周期、谜题分层释放、canon_patch 见 `references/canon-tracking.md`。
+六维核心 + 三扩展账本，追加式 JSONL，保证长篇一致性。详细 schema、爽点/面板/配角池生命周期、归档压缩、canon_patch 见 `references/canon-tracking.md`。
 
 | 文件 | 用途 |
 |------|------|
 | `facts.jsonl` | 原子事实，known_by 过滤防 POV 泄露 |
 | `promises.jsonl` | 钩子/承诺，planned_chapter/resolved_chapter 追踪伏笔生命周期 |
-| `progression.jsonl` | 能力进阶，value 检测回退 |
+| `payoffs.jsonl` | **爽点/期待感账本（★）**，期待感-兑现配对 + 逾期 + reader_hit |
+| `panels.jsonl` | **金手指/系统面板注册表（★）**，immutable 数值防穿帮 |
+| `roles.jsonl` | **配角/反派池（★）**，出场频率 + 智商档位 + 动机 |
+| `progression.jsonl` | 能力进阶，value 检测回退 + 升级过快预警 |
 | `relationships.jsonl` | 情感状态，arc 追踪角色弧线 |
 | `settings.jsonl` | 场景注册表，immutable 防描述漂移 |
 | `mysteries.jsonl` | 谜题分层释放，planned_reveal_chapter 防提前泄露 |
+| `archive/` | 卷归档压缩区（L4），`scripts/archive.sh` 生成，防 canon 无限膨胀 |
 
 ---
 
 ## 五、快照机制
 
-触发：每 N 章或卷收尾（N 在 project-config.md 定义）。`bash scripts/snapshot.sh {章号}` 备份知识库/摘要/大纲/canon/工作流到 `追踪/snapshots/ch-{章号}/`。回滚：`cp -r 追踪/snapshots/ch-NN/* ./`；正文回滚走 git。
+触发：每 N 章或卷收尾（N 在 project-config.md 定义）。`bash scripts/snapshot.sh {章号}` 备份知识库/摘要/大纲/canon/工作流到 `追踪/snapshots/ch-{章号}/`。回滚：`cp -r 追踪/snapshots/ch-NN/* ./`；正文回滚走 git。**卷末顺序**：先 `archive.sh` 压缩 canon，再 `snapshot.sh` 快照，保证快照含归档后状态。
 
 ---
 
 ## 六、文风与节奏
 
-核心：短句优先、动词强、形容词少；对话由人物目的和关系压力推进，心理藏在动作/微表情中；五感 ≥2种/场景；起笔快-中段铺垫-尾部钩子；章内"动-静-动"；信息密度 ≥配置值。
+核心：短句优先、动词强、形容词少；对话由人物目的和关系压力推进，心理藏在动作/微表情中；五感 ≥2种/场景；起笔快-中段铺垫-尾部钩子；章内"动-静-动"；信息密度 ≥配置值；**单章必有推进（有效推进项 ≥ 配置值）+ 爽点/期待感有进有出（payoffs 配对）**。
 
-节奏度量（动作占比30-50%/连续静场≤800字/尾部钩子区/段落开头多样性）、去AI味、招牌词节制、跨章节奏图谱详见 `references/style-and-pacing.md`；关键对白和幽默另见 `references/dialogue-revision.md`。
+节奏度量（动作占比30-50%/连续静场≤800字/尾部钩子区/段落开头多样性）、单章推进标准、黄金三章、爽感节奏、跨章节奏图谱详见 `references/style-and-pacing.md`；类型化节奏参数（男频/轻小说/悬疑/女频）见 `references/genre-profiles.md`；关键对白和幽默另见 `references/dialogue-revision.md`。
 
 ---
 
@@ -293,10 +328,12 @@ P3.2 只做基础编辑；关键对白的整体重写留给 P3.25，不以“只
 | "Phase 3.25 对白二稿" | 抽离关键对白，评分、重写与朗读测试 |
 | "Phase 3.5 核验" | 机械硬校验 + 文学审稿报告（含节奏/结尾/谜题/读者同步） |
 | "Phase 3.6 查重" | 跨章查重（最近N章+同卷同弧） |
+| "Phase 4.5 复盘" | 读者反馈复盘（追读/章评 → 调整建议） |
 | "Phase 5 归档" | 十步归档（含正典回填 + 节奏图谱） |
-| "卷末收束" | 卷末章收束7步 |
+| "卷末收束" | 卷末章收束10步（含爽点/面板/配角池审计 + 正典归档） |
 | "新卷开启" | 新卷首章准备6步 |
 | "canon_patch" | P4 后正典双向更新 |
+| "归档压缩" | 执行 `scripts/archive.sh` 正典归档压缩 |
 
 ---
 
@@ -312,8 +349,16 @@ P3.2 只做基础编辑；关键对白的整体重写留给 P3.25，不以“只
 | 大纲先行 | 每章必经 P2.6 "可写"审批 | 本工作流 |
 | POV 知识边界 | 出场角色不得用未知信息 | facts.jsonl·known_by |
 | 伏笔生命周期 | planned_chapter 逾期检测，resolved_chapter 回填 | promises.jsonl |
+| 爽点兑现 | 期待感-兑现配对，逾期(默认8章)硬失败，连续3章只设不收必回收 | payoffs.jsonl |
+| 面板一致 | 金手指/系统面板 immutable 数值不得矛盾 | panels.jsonl |
+| 配角/反派 | 循环配角闲置(默认15章)提示给戏；反派行为不得与动机/智商矛盾 | roles.jsonl |
 | 谜题分层释放 | 不得提前于 planned_reveal_chapter 泄露 | mysteries.jsonl |
-| 跨章节奏 | 小高潮÷3/大高潮÷10，高潮章到位 | 节奏图谱.md |
+| 战力通胀 | value 回退硬失败；短章数翻倍预警；越级需代价（配置启用） | progression.jsonl |
+| 跨章节奏 | 小高潮÷3/大高潮÷10，高潮章到位；爽点兑现/追读入图谱 | 节奏图谱.md |
+| 单章推进 | 有效推进项 ≥ 配置值，为 0 判"需重写" | style-and-pacing §2b |
+| 黄金三章 | Ch1-3 强制 --opening 开篇专项 | validate.sh --opening |
 | 读者-主角同步 | 不向读者揭示主角未知信息 | P3.5 |
 | 快照触发 | 每 N 章或卷收尾 | project-config.md |
 | 信息密度 | 单章 ≥配置值 | project-config.md |
+| 正典归档 | 卷完结后 canon 压缩，防百万字膨胀 | scripts/archive.sh |
+| 快速模式 | 可配置自动跳过审批/确认，AI 自检替代 | project-config.md §5 |

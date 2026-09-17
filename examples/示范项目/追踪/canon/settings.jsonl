@@ -1,0 +1,7 @@
+# Schema: {"id":"SET-XXXX","chapter":N,"location":"地点名","fact":"固定描述","immutable":true|false}
+# immutable=true：不可变描述（如建筑朝向、面积），一旦登记不得在后续章节中矛盾
+{"id": "SET-0001", "chapter": 1, "location": "杂役院", "fact": "西偏院三口水缸并排，门洞朝南，青石阶", "immutable": true}
+{"id": "SET-0002", "chapter": 1, "location": "西院破井", "fact": "青石井沿，井深一丈有余，井水清澈", "immutable": true}
+{"id": "SET-0003", "chapter": 1, "location": "后山竹林", "fact": "竹密林深，有条通往演武场的侧道", "immutable": true}
+{"id": "SET-0004", "chapter": 3, "location": "执事堂", "fact": "外门正殿西侧，青砖黑瓦，堂前两棵老松", "immutable": true}
+{"id": "SET-0005", "chapter": 2, "location": "演武场", "fact": "后山开阔石阶围场，场边有石阶看台", "immutable": true}

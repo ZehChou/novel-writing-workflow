@@ -1,18 +1,22 @@
 # 正典追踪系统（Canon Tracking）
 
-> SKILL.md 第四节的详细参考。保证长篇连载一致性：事实/承诺/进阶/情感/场景/谜题六维，均为追加式 JSONL。
+> SKILL.md 第四节的详细参考。保证长篇连载一致性：六维核心 + 两个扩展账本（爽点/面板）+ 配角池，均为追加式 JSONL。
 
 ## 目录
-1. 记忆压缩层级 L1/L2/L3
+1. 记忆压缩层级 L1/L2/L3/L4
 2. facts.jsonl - 原子事实
 3. promises.jsonl - 钩子/承诺（含伏笔生命周期）
-4. progression.jsonl - 能力进阶
-5. relationships.jsonl - 情感状态（含角色弧线）
-6. settings.jsonl - 场景注册表
-7. mysteries.jsonl - 谜题分层释放
-8. canon_patch - 正典双向更新
+4. payoffs.jsonl - 爽点/期待感账本（★ 扩展）
+5. panels.jsonl - 金手指/系统面板注册表（★ 扩展）
+6. roles.jsonl - 配角/反派池（★ 扩展）
+7. progression.jsonl - 能力进阶（含战力通胀检测）
+8. relationships.jsonl - 情感状态（含角色弧线）
+9. settings.jsonl - 场景注册表
+10. mysteries.jsonl - 谜题分层释放
+11. 正典归档压缩（L4 归档层）
+12. canon_patch - 正典双向更新
 
-## 1. 记忆压缩层级（L1/L2/L3）
+## 1. 记忆压缩层级（L1/L2/L3/L4）
 
 | 层级 | 文件 | 粒度 | 字数 | 更新频率 | 用途 |
 |------|------|------|------|----------|------|
@@ -40,6 +44,13 @@
 
 **L3 触发**：P2.5 总字符超 12000 时，降级为 L3 + P0 + P2，舍弃 L1/L2。
 
+**L4 归档层（★ 新增，百万字规模管理）**：
+- 位置：`追踪/canon/archive/卷{NN}/`，每卷完结后执行 `bash scripts/archive.sh {卷号} {卷末章号}`
+- 归档对象：已闭合伏笔、已兑现爽点、已揭示谜题、卷内已完结事实/关系/场景，以及章号 ≤ 卷末章的旧条目
+- 保留活跃：`status:pending` 的 promises/payoffs、`revealed_chapter:null` 的 mysteries、全部 roles、各角色最新 progression
+- 归档区含原条目副本 + `summary.md` 卷摘要；跨卷反查时先读 L2 卷摘要，必要时读归档区
+- **触发时机**：卷末收束第 6 步快照之前；全书 100+ 章后建议每卷必归档
+
 ## 2. facts.jsonl - 原子事实
 
 ```jsonl
@@ -66,15 +77,59 @@
 - 硬失败：`planned_chapter` + 逾期阈值（默认 5 章）仍未回收 -> ✗ 升级为硬失败
 - 连续 3 章只落不收 -> 本章应优先回收旧钩子
 
-## 4. progression.jsonl - 能力进阶
+## 4. payoffs.jsonl - 爽点/期待感账本（★ 新增）
+
+网文的引擎是「期待感-兑现配对」。每设置一个读者期待（打脸预告、装逼、金手指展示、情感推进、目标达成）记一条，兑现时回填——**让 AI 不只会"防崩"，还会"造爽"**。
+
+```jsonl
+{"id":"PAYOFF-XXXX","chapter":N,"by":"作者|角色名","payoff_type":"打脸|装逼|金手指|情感|进度","setup_desc":"期待感设置描述","paid_chapter":N|null,"status":"pending|paid|failed","intensity":1..3,"opponent":"被打脸/被压方","cost":"兑现代价","reader_hit":"高|中|低|null"}
+```
+- `payoff_type`：打脸=期待对方被打脸，装逼=期待主角展现实力，金手指=期待新能力，情感=期待关系推进，进度=期待目标达成
+- `status`：pending=已设置未兑现；paid=已兑现（回填 `paid_chapter`）；failed=兑现了但不响（记录教训）
+- `intensity`：1=小爽点 2=中爽点 3=大爽点
+- `reader_hit`：P4.5 读者复盘回填（哪些爽点读者买账，用于复用）
+- **生命周期检测**（P2.5 钩子健康度 + `validate.sh --payoff`）：
+  - 逾期：设置章 + 爽点逾期阈值（默认 8 章）仍未兑现 -> ⚠️ 逾期
+  - 连续 3 章只设不收 -> 本章应优先回收旧期待感
+- 打脸结构要求"先给后夺"：被打脸方先赢过面子/占过便宜，兑现才有余韵；`opponent` 字段记录被打脸方，后续可旧账回响
+
+## 5. panels.jsonl - 金手指/系统面板注册表（★ 新增）
+
+网文读者对数字极敏感，面板数值前后不一致是重大翻车。
+
+```jsonl
+{"id":"PANEL-XXXX","chapter":N,"entity":"角色名","system":"金手指/系统名","field":"面板字段","value":"数值或规则","immutable":true|false,"note":""}
+```
+- `immutable=true`：一经登记不得矛盾（属性上限、规则、消耗倍率）；更新须记 canon_change_log
+- `immutable=false`：可变值（当前血量、临时任务），可被后续覆盖
+- **P2.5 加载**：出场角色面板当前值；**P3.5 比对**（`validate.sh --panel`）：本章出现的面板数值/规则与 immutable 项逐条核对
+- 示例：灵力 12（初始）、每日任务限 1 次——这两条一旦登记，后续写错即触发硬失败
+
+## 6. roles.jsonl - 配角/反派池（★ 新增）
+
+防止"配角用完即弃""反派降智""路人甲无记忆点"。
+
+```jsonl
+{"id":"ROLE-XXXX","chapter":N,"name":"角色名","role":"循环配角|反派|路人|宠物","first_appearance":N,"last_appearance":N,"appearances":N,"intelligence":"高|中|低","motive":"当前动机","note":"记忆点"}
+```
+- `intelligence`：反派智商档位。**降智检测**：正文中反派行为与档位矛盾（高智商反派犯低级错误且无合理动机）-> 触发 literary-failure-modes.md 失败模式 #3
+- `last_appearance`/`appearances`：P5 每章归档更新；**闲置检测**（`validate.sh --cast`）：循环配角连续超过闲置阈值（默认 15 章）未出场 -> ⚠️ 要么给戏要么标记退场
+- `note`：记忆点（如"爱喝某茶馆的茶"），防止路人甲同质化
+
+## 7. progression.jsonl - 能力进阶（含战力通胀检测）
 
 ```jsonl
 {"id":"PROG-XXXX","chapter":N,"entity":"角色名","system":"体系名","level":"当前等级","value":N}
 ```
 - `value` 为数值排序，检测进阶回退（新值必须 ≥ 历史最高值）
 - P3.5 校验本章境界变化是否低于历史最高值
+- **战力通胀检测**（`validate.sh --power`）：
+  - 单角色回退：value < 历史最高值 -> 硬失败
+  - 升级过快：短章数内 value 翻倍（默认 5 章）-> ⚠️ 警惕战力通胀/旧敌贬值
+  - **越级规则**：`project-config.md` 配置 `越级需代价=是` 时，越级事件必须伴随代价（在 facts/panels 登记），无代价越级 -> ⚠️
+- **旧敌贬值提醒**：主角秒杀旧敌前，检查该敌人在 `payoffs.jsonl` 或 `roles.jsonl` 中是否有未兑现的价值——旧敌是"成长刻度"，用一次少一次，慎当一次性沙包
 
-## 5. relationships.jsonl - 情感状态（角色弧线）
+## 8. relationships.jsonl - 情感状态（角色弧线）
 
 ```jsonl
 {"id":"REL-XXXX","chapter":N,"from":"角色A","to":"角色B","status":"关系状态","delta":"变化描述","sentiment":-3..3,"arc":"弧线标签"}
@@ -84,7 +139,7 @@
 - 每章归档追加；写前加载防止"上章冷战这章突然亲密"的情感跳跃
 - L2 卷级摘要汇总各 `arc` 的本卷进展
 
-## 6. settings.jsonl - 场景注册表
+## 9. settings.jsonl - 场景注册表
 
 ```jsonl
 {"id":"SET-XXXX","chapter":N,"location":"地点名","fact":"固定描述","immutable":true|false}
@@ -95,7 +150,7 @@
 - P3.5 逐条比对本章描述与已登记 immutable 项
 - P5 新场景或场景变化时追加新条目
 
-## 7. mysteries.jsonl - 谜题分层释放
+## 10. mysteries.jsonl - 谜题分层释放
 
 世界观秘密的分层释放注册表，限知 POV 核心：
 
@@ -110,7 +165,17 @@
 - 写前按 `known_by` 过滤，防止 POV 泄露
 - **P3.5 提前泄露检测**（`validate.sh --mystery`）：本章是否向读者/非知情角色披露了尚未到 `planned_reveal_chapter` 的谜题 -> 硬失败
 
-## 8. canon_patch - 正典双向更新
+## 11. 正典归档压缩（L4 归档层）
+
+> 百万字长篇规模管理：canon jsonl 无限增长会撑爆 P2.5 预算。每卷完结后压缩。
+
+- **命令**：`bash scripts/archive.sh {卷号} {卷末章号}`（先 `--dry-run` 预览）
+- **归档对象**：已闭合伏笔、已兑现爽点、已揭示谜题、卷内完结事实/关系/场景、章号 ≤ 卷末章的旧条目
+- **保留活跃**：`status:pending` 的 promises/payoffs、`revealed_chapter:null` 的 mysteries、全部 roles、各角色最新 progression
+- **产出**：`追踪/canon/archive/卷{NN}/`（原条目 + `summary.md` 卷摘要）
+- **联动**：归档后执行快照 `snapshot.sh {卷末章}`；跨卷反查先读 L2 卷摘要，必要时读归档区
+
+## 12. canon_patch - 正典双向更新
 
 正典非只读。写作中发现更好设定时更新正典而非强守旧设定。
 

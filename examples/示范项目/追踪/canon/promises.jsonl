@@ -1,0 +1,5 @@
+# Schema: {"id":"PROMISE-XXXX","chapter":N,"by":"作者|角色名","content":"承诺内容","status":"pending|fulfilled|broken","type":"cliffhanger|emotional|lore|setup","scope":"intra-volume|cross-volume","planned_chapter":N,"resolved_chapter":N|null}
+{"id": "PROMISE-0002", "chapter": 2, "by": "作者", "content": "苏晴察觉秦朗异常，赠药与好奇，后续关系发展", "status": "pending", "type": "emotional", "scope": "cross-volume", "planned_chapter": 8}
+{"id": "PROMISE-0003", "chapter": 3, "by": "赵福", "content": "赵家与秦家的旧账：'记在账上的早晚要还'", "status": "pending", "type": "lore", "scope": "cross-volume", "planned_chapter": 20}
+{"id": "PROMISE-0004", "chapter": 3, "by": "苏晴", "content": "内门藏经阁有秦远山二十年前旧档，可查其失踪真相", "status": "pending", "type": "setup", "scope": "intra-volume", "planned_chapter": 6}
+{"id": "PROMISE-0001", "chapter": 1, "by": "作者", "content": "赵无极演武场之战（三日期限赌约）", "status": "fulfilled", "type": "cliffhanger", "scope": "intra-volume", "planned_chapter": 3, "resolved_chapter": 3}

@@ -1,0 +1,10 @@
+# Schema: {"id":"FACT-XXXX","chapter":N,"entity":["角色名"],"fact":"事实描述","known_by":["角色A","角色B"]}
+# known_by 留空 = 公开信息；新角色得知时追加 type:"disclosure" 条目
+{"id": "FACT-0002", "chapter": 1, "entity": ["赵无极", "赵福"], "fact": "赵无极是外门执事赵福独子，练《磐石功》，外门弟子中拔尖", "known_by": []}
+{"id": "FACT-0003", "chapter": 1, "entity": ["秦朗"], "fact": "青云宗门规：外门杂役不得私练功法，违者逐出山门", "known_by": ["秦朗"]}
+{"id": "FACT-0004", "chapter": 1, "entity": ["秦朗"], "fact": "秦朗觉醒青云图录《混元淬体诀》，淬体可增强体魄；图录明示'勿与人言'", "known_by": ["秦朗", "刘伯"], "type": "disclosure"}
+{"id": "FACT-0005", "chapter": 3, "entity": ["秦远山"], "fact": "秦远山二十年前为内门天才，因'偷学禁术'交图录后下山失踪", "known_by": ["刘伯", "秦朗"], "type": "disclosure"}
+{"id": "FACT-0006", "chapter": 3, "entity": ["秦朗"], "fact": "秦朗持有秦远山留存的秦家玉牌，背面刻字'青冥台上，等你回家'", "known_by": ["秦朗", "苏晴"]}
+{"id": "FACT-0007", "chapter": 2, "entity": ["赵无极", "秦朗"], "fact": "秦朗在演武场公开击败赵无极，震伤其右臂，取走玉坠", "known_by": []}
+{"id": "FACT-0008", "chapter": 3, "entity": ["赵福"], "fact": "赵福忌惮秦家旧案翻案，被刘伯当众点破后收手，'记在账上的早晚要还'", "known_by": ["赵福", "刘伯", "秦朗", "苏晴"]}
+{"id": "FACT-0001", "chapter": 1, "entity": ["秦朗"], "fact": "秦朗是青云宗外门杂役，挑水三年，无名额功法", "known_by": []}

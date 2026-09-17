@@ -1,0 +1,5 @@
+# Schema: {"id":"MYS-XXXX","mystery":"谜题描述","layer":N,"planned_reveal_chapter":N,"known_by":["角色"],"revealed_chapter":N|null,"disclosed_to":[]}
+{"id": "MYS-0001", "mystery": "青云图录为何认主秦朗（与秦远山图录的关系）", "layer": 2, "planned_reveal_chapter": 15, "known_by": ["秦朗", "刘伯"], "revealed_chapter": null, "disclosed_to": []}
+{"id": "MYS-0002", "mystery": "秦远山当年'偷学禁术'真相与失踪之谜", "layer": 3, "planned_reveal_chapter": 25, "known_by": ["刘伯"], "revealed_chapter": null, "disclosed_to": []}
+{"id": "MYS-0003", "mystery": "青冥台上有什么（'等你回家'指什么）", "layer": 1, "planned_reveal_chapter": 8, "known_by": ["秦朗"], "revealed_chapter": null, "disclosed_to": []}
+{"id": "MYS-0004", "mystery": "赵家与秦家的旧账（赵福怕什么）", "layer": 2, "planned_reveal_chapter": 20, "known_by": ["刘伯", "赵福"], "revealed_chapter": null, "disclosed_to": []}

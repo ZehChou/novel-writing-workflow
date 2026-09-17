@@ -1,0 +1,7 @@
+# Schema: {"id":"REL-XXXX","chapter":N,"from":"角色A","to":"角色B","status":"关系状态","delta":"变化描述","sentiment":-3..3,"arc":"弧线标签"}
+{"id": "REL-0001", "chapter": 1, "from": "秦朗", "to": "赵无极", "status": "敌对", "delta": "被当众羞辱、罚淘井、立赌约", "sentiment": -3}
+{"id": "REL-0003", "chapter": 2, "from": "赵无极", "to": "秦朗", "status": "怨恨", "delta": "演武场被当众打脸，右臂震伤", "sentiment": -3}
+{"id": "REL-0004", "chapter": 3, "from": "刘伯", "to": "秦朗", "status": "守护", "delta": "执事堂当众护秦朗，转交秦家玉牌，点破秦远山旧事", "sentiment": 3, "arc": "秦朗-承志"}
+{"id": "REL-0005", "chapter": 3, "from": "赵福", "to": "秦朗", "status": "忌惮", "delta": "问罪被刘伯当众点破后收手，'记在账上的早晚要还'", "sentiment": -2}
+{"id": "REL-0006", "chapter": 3, "from": "苏晴", "to": "秦朗", "status": "关切", "delta": "听闻执事堂风波后送药，邀查内门旧档", "sentiment": 2, "arc": "苏晴-探寻"}
+{"id": "REL-0002", "chapter": 2, "from": "苏晴", "to": "秦朗", "status": "好奇", "delta": "察觉秦朗气息异常，赠接骨草未点破", "sentiment": 1, "arc": "苏晴-探寻"}
