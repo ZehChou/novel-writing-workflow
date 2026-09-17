@@ -1,0 +1,9 @@
+# Schema: {"id":"ROLE-XXXX","chapter":N,"name":"角色名","role":"类型（循环配角|反派|路人|宠物）","first_appearance":N,"last_appearance":N,"appearances":N,"intelligence":"智商档位（高|中|低）","motive":"当前动机（可更新）","note":"记忆点/弧线（可空）"}
+# 用途：配角/反派池注册表。防止"配角用完即弃""反派降智""路人甲无记忆点"。
+# 循环配角：登记出场频率，P2.5 写前加载可用性（是否该出场/该给戏）
+# 反派：intelligence 档位用于降智检测——行为与档位矛盾时触发失败模式 #3
+# 每章归档（P5）更新 last_appearance / appearances / motive
+# 只追加不修改；last_appearance / appearances / motive 可更新
+# 示例条目（使用时替换为实际内容，或删除示例从头开始）：
+# {"id":"ROLE-0001","chapter":1,"name":"{配角A}","role":"循环配角","first_appearance":1,"last_appearance":1,"appearances":1,"intelligence":"中","motive":"{当前动机}","note":"{记忆点，如：爱喝某茶馆的茶}"}
+# {"id":"ROLE-0002","chapter":2,"name":"{反派A}","role":"反派","first_appearance":2,"last_appearance":2,"appearances":1,"intelligence":"高","motive":"{当前动机}","note":"{底牌/性格}"}

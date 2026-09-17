@@ -1,0 +1,11 @@
+# Schema: {"id":"PAYOFF-XXXX","chapter":N,"by":"作者|角色名","payoff_type":"打脸|装逼|金手指|情感|进度","setup_desc":"期待感设置描述","paid_chapter":N|null,"status":"pending|paid|failed","intensity":1..3,"opponent":"被打脸/被压方（可空）","cost":"兑现代价（可空）","reader_hit":"高|中|低|null"}
+# 用途：爽点/期待感账本。网文核心是"期待感-兑现配对"——设置期待感记一条，兑现时回填 paid_chapter。
+# payoff_type: 打脸=期待对方被打脸, 装逼=期待主角展现实力, 金手指=期待金手指新能力, 情感=期待关系推进, 进度=期待目标达成
+# status: pending=已设置未兑现, paid=已兑现, failed=爽点哑火（兑现了但不响，记录教训）
+# intensity: 1=小爽点, 2=中爽点, 3=大爽点
+# reader_hit: 复盘（P4.5）回填——哪些爽点读者买账，用于复用
+# 生命周期：逾期（paid_chapter 未回填且距设置 > 爽点逾期阈值，默认 8 章）-> 检测；连续 3 章只设不收 -> 强制回收
+# 只追加不修改；status / paid_chapter / reader_hit 可更新
+# 示例条目（使用时替换为实际内容，或删除示例从头开始）：
+# {"id":"PAYOFF-0001","chapter":2,"by":"作者","payoff_type":"打脸","setup_desc":"{配角A}当众嘲讽主角，立下'三天后比试'的赌约","paid_chapter":null,"status":"pending","intensity":2,"opponent":"{配角A}","cost":null,"reader_hit":null}
+# {"id":"PAYOFF-0002","chapter":3,"by":"作者","payoff_type":"金手指","setup_desc":"{金手指名}首次展示{新能力}","paid_chapter":3,"status":"paid","intensity":1,"opponent":null,"cost":"消耗{某资源}","reader_hit":"高"}

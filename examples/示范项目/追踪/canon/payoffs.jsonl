@@ -1,0 +1,5 @@
+# Schema: {"id":"PAYOFF-XXXX","chapter":N,"by":"作者|角色名","payoff_type":"打脸|装逼|金手指|情感|进度","setup_desc":"期待感设置描述","paid_chapter":N|null,"status":"pending|paid|failed","intensity":1..3,"opponent":"被打脸/被压方（可空）","cost":"兑现代价（可空）","reader_hit":"高|中|低|null"}
+{"id": "PAYOFF-0002", "chapter": 3, "by": "作者", "payoff_type": "装逼", "setup_desc": "刘伯点破秦朗秦家后人身份，当众镇住赵福，期待后续赵家忌惮", "paid_chapter": null, "status": "pending", "intensity": 2, "opponent": "赵福", "cost": null, "reader_hit": null}
+{"id": "PAYOFF-0004", "chapter": 3, "by": "作者", "payoff_type": "进度", "setup_desc": "秦朗立志上青冥台寻父，期待玉牌送达/真相揭晓", "paid_chapter": null, "status": "pending", "intensity": 3, "opponent": null, "cost": null, "reader_hit": null}
+{"id": "PAYOFF-0001", "chapter": 1, "by": "作者", "payoff_type": "打脸", "setup_desc": "赵无极当众羞辱秦朗并立演武场赌约，期待他被打脸", "paid_chapter": 3, "status": "paid", "intensity": 2, "opponent": "赵无极", "cost": null, "reader_hit": "高"}
+{"id": "PAYOFF-0003", "chapter": 1, "by": "作者", "payoff_type": "金手指", "setup_desc": "青云图录觉醒《混元淬体诀》，期待淬体见效", "paid_chapter": 2, "status": "paid", "intensity": 1, "opponent": null, "cost": "淬体疼痛、不可与人言", "reader_hit": "中"}

@@ -1,0 +1,5 @@
+# Schema: {"id":"ROLE-XXXX","chapter":N,"name":"角色名","role":"类型（循环配角|反派|路人|宠物）","first_appearance":N,"last_appearance":N,"appearances":N,"intelligence":"智商档位（高|中|低）","motive":"当前动机（可更新）","note":"记忆点/弧线（可空）"}
+{"id": "ROLE-0001", "chapter": 1, "name": "赵无极", "role": "反派", "first_appearance": 1, "last_appearance": 3, "appearances": 2, "intelligence": "中", "motive": "仗势立威；输给秦朗后想找回场子", "note": "被当众打脸，右臂震伤"}
+{"id": "ROLE-0002", "chapter": 1, "name": "刘伯", "role": "循环配角", "first_appearance": 1, "last_appearance": 3, "appearances": 3, "intelligence": "高", "motive": "守着秦家旧事，护秦朗周全", "note": "秦家旧仆，瘸腿拄拐，话少"}
+{"id": "ROLE-0003", "chapter": 2, "name": "苏晴", "role": "循环配角", "first_appearance": 2, "last_appearance": 3, "appearances": 2, "intelligence": "高", "motive": "对秦朗异常好奇，想查秦远山旧档", "note": "内门师姐，赠药不点破"}
+{"id": "ROLE-0004", "chapter": 3, "name": "赵福", "role": "反派", "first_appearance": 3, "last_appearance": 3, "appearances": 1, "intelligence": "高", "motive": "护子、怕秦家旧案翻案", "note": "执事，被刘伯当众点破后收手"}

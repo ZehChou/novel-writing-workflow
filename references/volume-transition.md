@@ -15,9 +15,12 @@
 2. **L3 全篇更新**：更新 `正文/摘要/全篇.brief.md`（800-1000 字超精简叙事线，格式见 context-budget.md）
 3. **伏笔审计**：扫 `promises.jsonl`，intra-volume 未回收项必须在本卷闭合或显式转 cross-volume；逾期项列清单（见 canon-tracking.md 伏笔生命周期）
 4. **谜题审计**：扫 `mysteries.jsonl`，核对本卷 `planned_reveal_chapter` 已到期项是否已揭示；未揭示的调整计划章号或标记延期
-5. **节奏图谱大高潮校验**：本卷大高潮章（如 Ch10/20/30）实际情绪强度是否到位（见 style-and-pacing.md）
-6. **快照**：执行 `bash scripts/snapshot.sh {卷末章号}`（卷收尾必触发，不受周期限制）
-7. **canon 完整性自检**：`bash scripts/validate.sh {卷末章号} --canon` 全绿
+5. **爽点审计**：扫 `payoffs.jsonl`，本卷设置的期待感是否兑现（intra 爽点必须在本卷闭合或显式结转）；`intensity=3` 大爽点是否落在大高潮章；reader_hit 汇总留给 P4.5 复盘
+6. **节奏图谱大高潮校验**：本卷大高潮章（如 Ch10/20/30）实际情绪强度是否到位（见 style-and-pacing.md）；节奏图谱爽点兑现列回填
+7. **面板/配角池审计**：`validate.sh --panel` 无 immutable 冲突；`validate.sh --cast` 配角池闲置/缺动机项处理
+8. **正典归档压缩**：全书已 100+ 章（或 canon 超预算）时执行 `bash scripts/archive.sh {卷号} {卷末章号}`（先 --dry-run 预览）
+9. **快照**：执行 `bash scripts/snapshot.sh {卷末章号}`（卷收尾必触发，不受周期限制）
+10. **canon 完整性自检**：`bash scripts/validate.sh {卷末章号} --canon` 全绿
 
 ## 2. 新卷开启
 

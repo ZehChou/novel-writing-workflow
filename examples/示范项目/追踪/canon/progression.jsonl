@@ -1,0 +1,6 @@
+# Schema: {"id":"PROG-XXXX","chapter":N,"entity":"角色名","system":"体系名","level":"当前等级","value":N}
+# value 为数值排序，用于检测进阶回退（新值必须 ≥ 历史最高值）
+{"id": "PROG-0003", "chapter": 3, "entity": "秦朗", "system": "混元淬体诀", "level": "淬体第二重·掌出青芒", "value": 3}
+{"id": "PROG-0004", "chapter": 1, "entity": "赵无极", "system": "磐石功", "level": "第三重", "value": 3}
+{"id": "PROG-0001", "chapter": 1, "entity": "秦朗", "system": "混元淬体诀", "level": "淬体第一重", "value": 1}
+{"id": "PROG-0002", "chapter": 2, "entity": "秦朗", "system": "混元淬体诀", "level": "淬体第二重", "value": 2}
